@@ -32,4 +32,4 @@ demo = gr.Interface(
     outputs="file",
     submit_btn="Inference",
 )
-demo.launch(share=True)
+demo.launch(share=True, server_name='0.0.0.0')
