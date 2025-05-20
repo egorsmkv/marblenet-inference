@@ -1,5 +1,7 @@
 # MarbleNet inference
 
+[![CI pipeline](https://github.com/egorsmkv/marblenet-inference/actions/workflows/ci.yml/badge.svg)](https://github.com/egorsmkv/marblenet-inference/actions/workflows/ci.yml)
+
 This repo contains workable code to run NeMo's model that does Voice Activity Detection.
 
 ## Install
