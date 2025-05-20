@@ -20,5 +20,5 @@ jobs:
       - name: Install deps
         run: uv pip install -r requirements.txt
 
-      - name: Check code
-        run: ruff check
+      - name: Run inference
+        run: python inference.py
