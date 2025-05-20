@@ -58,24 +58,21 @@ vad_model = vad_model.to(device)
 vad_model.eval()
 
 
-wavs = glob("wavs/*.wav")
-
-for wav in wavs:
-    file_name = basename(wav).replace(".wav", "")
-    rttm_filename = f"rttm_outputs/{basename(wav).replace('.wav', '.rttm')}"
-
+def inference_file(filename: str):
     rttm_outputs = Path("rttm_outputs")
     rttm_outputs.mkdir(parents=True, exist_ok=True)
 
     vad_frame_outputs = Path("vad_frame_outputs")
     vad_frame_outputs.mkdir(parents=True, exist_ok=True)
 
+    file_name = basename(filename).replace(".wav", "")
+    rttm_filename = f"rttm_outputs/{basename(filename).replace('.wav', '.rttm')}"
     tmp_manifest_filename = "tmp.json"
 
     with open(tmp_manifest_filename, "w") as f:
-        durations = sphn.durations([wav])
+        durations = sphn.durations([filename])
         row = {
-            "audio_filepath": wav,
+            "audio_filepath": filename,
             "offset": 0,
             "duration": durations[0],
             "label": "infer",
@@ -112,6 +109,8 @@ for wav in wavs:
         out_dir=str(rttm_outputs),
     )
 
+    print("rttm_out_dir:", rttm_out_dir)
+
     rttm = load_rttm(rttm_filename)
     speeches = as_dict_list(rttm[file_name])["speech"]
 
@@ -120,16 +119,31 @@ for wav in wavs:
         rmtree(file_chunks_dir)
     file_chunks_dir.mkdir(parents=True, exist_ok=True)
 
-    reader = sphn.FileReader(wav)
+    reader = sphn.FileReader(filename)
 
+    results = []
     for idx, speech in enumerate(speeches):
         audio = reader.decode(speech["start"], speech["end"] - speech["start"])
 
-        sphn.write_wav(f"{file_chunks_dir}/{idx}.wav", audio, reader.sample_rate)
+        save_to = f"{file_chunks_dir}/{idx}.wav"
+        sphn.write_wav(save_to, audio, reader.sample_rate)
 
-        print(speech)
+        results.append(
+            {
+                "speech": speech,
+                "filename": save_to,
+            }
+        )
 
     # Clean up
     os.remove(tmp_manifest_filename)
     rmtree(vad_frame_outputs)
     rmtree(rttm_outputs)
+
+    return results
+
+
+if __name__ == "__main__":
+    for wav in glob("wavs/*.wav"):
+        result = inference_file(wav)
+        print(result)

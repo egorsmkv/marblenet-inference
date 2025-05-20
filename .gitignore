@@ -1,4 +1,10 @@
+__pycache__/
+
 .ruff_cache/
 .venv/
+.gradio/
 
 chunks/
+
+vad_frame_outputs/
+rttm_outputs/
