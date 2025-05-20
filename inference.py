@@ -13,8 +13,8 @@ import torch
 from nemo.collections.asr.parts.utils.vad_utils import (
     generate_vad_frame_pred,
     generate_vad_segment_table,
-    init_frame_vad_model,
 )
+from nemo.collections.asr.models import EncDecFrameClassificationModel
 from pyannote.core import Annotation
 from pyannote.database.util import load_rttm
 
@@ -51,7 +51,9 @@ postprocessing = {
     "filter_speech_first": True,
 }
 
-vad_model = init_frame_vad_model("vad_multilingual_frame_marblenet")
+vad_model = EncDecFrameClassificationModel.from_pretrained(
+    model_name="vad_multilingual_frame_marblenet", strict=False
+)
 vad_model = vad_model.to(device)
 vad_model.eval()
 
@@ -112,7 +114,7 @@ for wav in wavs:
 
     rttm = load_rttm(rttm_filename)
     speeches = as_dict_list(rttm[file_name])["speech"]
-    
+
     file_chunks_dir = Path(f"chunks/{file_name}")
     if file_chunks_dir.exists():
         rmtree(file_chunks_dir)

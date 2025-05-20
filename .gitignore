@@ -1,5 +1,4 @@
 .ruff_cache/
 .venv/
 
-wavs/
 chunks/
